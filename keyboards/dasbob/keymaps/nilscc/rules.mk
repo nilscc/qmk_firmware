@@ -1,2 +1,4 @@
 REPEAT_KEY_ENABLE = yes
-SRC += swapper.c
+NKRO_ENABLE = yes
+
+SRC += oneshot.c
