@@ -34,11 +34,11 @@ enum keycodes {
 #define LA_NUM MO(NUM)
 #define LA_FNC MO(FNC)
 
-#define ALGR_A ALGR(KC_A)
-#define ALGR_U ALGR(KC_U)
-#define ALGR_O ALGR(KC_O)
-#define ALGR_E ALGR(KC_E)
+#define ALGR_A ALGR(KC_Q) // match us intl layout
+#define ALGR_U ALGR(KC_Y)
+#define ALGR_O ALGR(KC_P)
 #define ALGR_S ALGR(KC_S)
+#define ALGR_E ALGR(KC_5) // euro sign
 
 // umlaut tap-hold defines: regular key on tap, umlaut variant on hold.
 // needs to be defined as one of the mod-tap keys, even though its behaviour is
@@ -47,6 +47,7 @@ enum keycodes {
 #define UL_O ALGR_T(KC_O)
 #define UL_U ALGR_T(KC_U)
 #define UL_S ALGR_T(KC_S)
+#define UL_E ALGR_T(KC_E) // for euro signs
 
 #define HOME G(KC_LEFT)
 #define END G(KC_RGHT)
@@ -56,6 +57,8 @@ enum keycodes {
 #define TAB_R G(S(KC_RBRC))
 #define SPACE_L A(G(KC_LEFT))
 #define SPACE_R A(G(KC_RGHT))
+
+#define SWAP_LAYER_KEYS
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -86,9 +89,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [ALPHA_NORDRASSIL] = LAYOUT_split_3x5_3(
         KC_Q,    KC_Y,    UL_O,    UL_U,    KC_MINS,                   KC_J,    KC_G,    KC_N,    KC_W,    KC_K,
-        KC_H,    KC_I,    KC_E,    UL_A,    KC_DOT,                    KC_P,    KC_D,    KC_R,    UL_S,    KC_L,
+        KC_H,    KC_I,    UL_E,    UL_A,    KC_DOT,                    KC_P,    KC_D,    KC_R,    UL_S,    KC_L,
         KC_Z,    KC_X,    KC_QUOT, KC_COMM, KC_SCLN,                   KC_B,    KC_C,    KC_M,    KC_F,    KC_V,
+#ifdef SWAP_LAYER_KEYS
+                                   LA_NAV,  QK_REP,  KC_SPC,  KC_T,    OS_SHFT, LA_SYM
+#else
                                    QK_REP,  KC_SPC,  LA_NAV,  LA_SYM,  KC_T,    OS_SHFT
+#endif
     ),
 
     // special layers
@@ -96,7 +103,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [SYM] = LAYOUT_split_3x5_3(
         KC_TILD, KC_LBRC, KC_LCBR, KC_LPRN, KC_UNDS,                   KC_PLUS, KC_RPRN, KC_RCBR, KC_RBRC, KC_GRV,
         KC_HASH, KC_CIRC, KC_EQL,  KC_DLR,  KC_ASTR,                   KC_MINS, OS_CTRL, OS_ALT,  OS_CMD,  OS_SHFT,
-        XXXXXXX, KC_AMPR, KC_PIPE, KC_SLSH, KC_BSLS,                   KC_PERC, KC_COLN, KC_AT,   KC_QUES, KC_EXLM,
+        XXXXXXX, KC_PIPE, KC_AMPR, KC_SLSH, KC_BSLS,                   KC_PERC, KC_COLN, KC_AT,   KC_QUES, KC_EXLM,
                                    _______, _______, _______, _______, KC_ENT,  _______
     ),
 
@@ -236,9 +243,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     switch (keycode) {
         case UL_A: return tap_hold(record, KC_A, ALGR_A);
-        case UL_O: return tap_hold(record, KC_O, ALGR_O);
         case UL_U: return tap_hold(record, KC_U, ALGR_U);
+        case UL_O: return tap_hold(record, KC_O, ALGR_O);
         case UL_S: return tap_hold(record, KC_S, ALGR_S);
+        case UL_E: return tap_hold(record, KC_E, ALGR_E);
         default: break;
     }
 
