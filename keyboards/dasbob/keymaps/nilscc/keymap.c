@@ -108,9 +108,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 
     [NAV] = LAYOUT_split_3x5_3(
-        SW_WINN, SW_WINP, KC_CAPS, KC_PSCR, KC_VOLU,                   XXXXXXX, KC_DEL,  KC_BSPC, XXXXXXX, XXXXXXX,
+        SW_WINN, SW_WINP, CW_TOGG, KC_PSCR, KC_VOLU,                   XXXXXXX, KC_DEL,  KC_BSPC, XXXXXXX, XXXXXXX,
         OS_SHFT, OS_CMD,  OS_ALT,  OS_CTRL, KC_VOLD,                   KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, KC_ENT,
-        KC_COPY, KC_PSTE, KC_TAB,  KC_ESC,  KC_MPLY,                   KC_HOME, KC_PGDN, KC_PGUP, KC_END,  XXXXXXX,
+        KC_CAPS, XXXXXXX, KC_TAB,  KC_ESC,  KC_MPLY,                   KC_HOME, KC_PGDN, KC_PGUP, KC_END,  XXXXXXX,
                                    _______, _______, _______, _______, _______, _______
     ),
 
@@ -193,6 +193,11 @@ static oneshot_state os_cmd_state = os_up_unqueued;
 
 static bool tap_hold(keyrecord_t *record, uint16_t tap, uint16_t hold) {
     if (record->event.pressed) {
+        // check caps word state
+        if (is_caps_word_on())
+        {
+            add_weak_mods(MOD_BIT(KC_LSFT));
+        }
         tap_code16(record->tap.count ? tap : hold);
     }
     return false;
