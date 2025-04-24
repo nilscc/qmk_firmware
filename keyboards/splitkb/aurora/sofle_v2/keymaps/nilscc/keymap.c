@@ -59,6 +59,7 @@ enum nilscc_layers {
 #define NUMBERS MO(_NUMBERS)
 #define SYMBOLS MO(_SYMBOLS)
 #define NAVIGATION MO(_NAVIGATION)
+#define NAV NAVIGATION
 
 #define COLEMAK PDF(_COLEMAK)
 #define NRDRSSL PDF(_NORDRASSIL)
@@ -82,6 +83,21 @@ enum nilscc_layers {
 #define SYM_BS      LT(_SYMBOLS,        KC_BSPC)
 #define SYM_T       LT(_SYMBOLS,        KC_T)
 #define FN_REP      LT(_FUNCTIONS,      QK_REP)
+
+// umlaut tap-hold defines: regular key on tap, umlaut variant on hold.
+// needs to be defined as one of the mod-tap keys, even though its behaviour is
+// overwritten in process_record_user!
+#define UL_A ALGR_T(KC_A)
+#define UL_O ALGR_T(KC_O)
+#define UL_U ALGR_T(KC_U)
+#define UL_S ALGR_T(KC_S)
+#define UL_E ALGR_T(KC_E) // for euro signs
+
+#define ALGR_A ALGR(KC_Q) // match us intl layout
+#define ALGR_U ALGR(KC_Y)
+#define ALGR_O ALGR(KC_P)
+#define ALGR_S ALGR(KC_S)
+#define ALGR_E ALGR(KC_5) // euro sign
 
 enum custom_key_codes {
     KVM_1 = SAFE_RANGE,
@@ -116,11 +132,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // See: https://github.com/empressabyss/nordrassil
     //
     [_NORDRASSIL] = LAYOUT(
-        KC_ESC,     KC_1,       KC_2,       KC_3,       KC_4,       KC_5,                               KC_6,       KC_7,       KC_8,       KC_9,       KC_0,       KC_BSPC,
-        KC_TAB,     Q,          Y,          O,          U,          KC_MINS,                            J,          G,          N,          W,          K,          KC_DEL,
-        KC_GRV,     H,          I,          LSFT_T(E),  LCTL_T(A),  KC_DOT,                             P,          RCTL_T(D),  RSFT_T(R),  S,          L,          KC_SLSH,
+        KC_GRV,     KC_1,       KC_2,       KC_3,       KC_4,       KC_5,                               KC_6,       KC_7,       KC_8,       KC_9,       KC_0,       KC_SLSH,
+        KC_TAB,     Q,          Y,          UL_O,       UL_U,       KC_MINS,                            J,          G,          N,          W,          K,          KC_BSPC,
+        KC_ESC,     H,          I,          UL_E,       UL_A,       KC_DOT,                             P,          D,          R,          UL_S,       L,          KC_ENT,
         KC_LSFT,    Z,          X,          KC_QUOT,    KC_COMM,    KC_SCLN,    XXXXXXX,    XXXXXXX,    B,          C,          M,          F,          V,          KC_RSFT,
-                                KC_LGUI,    KC_LALT,  RALT_T(KC_ESC), NUM_SPC,  QK_REP,     SYM_T,      NAV_BS,     LALT_T(KC_DEL), KC_RCTL, KC_RGUI
+                                KC_LGUI,    KC_LALT,    KC_LCTL,    QK_REP,     NUM_SPC,    SYM_T,      NAV,        KC_RCTL,    KC_RALT,    KC_DEL
     ),
 
     //
@@ -215,39 +231,36 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 #endif
 /* clang-format on */
 
-static void switch_kvm(uint16_t screen) {
-    tap_code(KC_SCRL);
-    SEND_STRING(SS_DELAY(200));
-    tap_code(KC_SCRL);
-    SEND_STRING(SS_DELAY(200));
-    tap_code(screen);
+// static void switch_kvm(uint16_t screen) {
+//     tap_code(KC_SCRL);
+//     SEND_STRING(SS_DELAY(200));
+//     tap_code(KC_SCRL);
+//     SEND_STRING(SS_DELAY(200));
+//     tap_code(screen);
+// }
+
+static bool tap_hold(keyrecord_t *record, uint16_t tap, uint16_t hold) {
+    if (record->event.pressed) {
+        // check caps word state
+        if (is_caps_word_on())
+        {
+            add_weak_mods(MOD_BIT(KC_LSFT));
+        }
+        tap_code16(record->tap.count ? tap : hold);
+    }
+    return false;
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case KVM_1:
-            if (record->event.pressed) {
-                switch_kvm(KC_1);
-            }
-            return false;
-        case KVM_2:
-            if (record->event.pressed) {
-                switch_kvm(KC_2);
-            }
-            return false;
-        case KVM_3:
-            if (record->event.pressed) {
-                switch_kvm(KC_3);
-            }
-            return false;
-        case KVM_4:
-            if (record->event.pressed) {
-                switch_kvm(KC_4);
-            }
-            return false;
-        default:
-            return true;
+        case UL_A: return tap_hold(record, KC_A, ALGR_A);
+        case UL_U: return tap_hold(record, KC_U, ALGR_U);
+        case UL_O: return tap_hold(record, KC_O, ALGR_O);
+        case UL_S: return tap_hold(record, KC_S, ALGR_S);
+        case UL_E: return tap_hold(record, KC_E, ALGR_E);
+        default: break;
     }
+    return true;
 }
 
 
