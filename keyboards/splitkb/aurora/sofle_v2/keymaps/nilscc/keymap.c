@@ -263,6 +263,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
+// shift only symbols on alpha layer of nordrassil layout
+bool get_custom_auto_shifted_key(uint16_t keycode, keyrecord_t *record) {
+    switch(keycode) {
+        case KC_MINS:
+        case KC_DOT:
+        case KC_QUOT:
+        case KC_COMM:
+        case KC_SCLN:
+            return true;
+        default:
+            return false;
+    }
+}
 
 // Disable power LED of liatris board
 void keyboard_pre_init_user(void) {
