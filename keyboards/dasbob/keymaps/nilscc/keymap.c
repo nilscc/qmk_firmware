@@ -5,8 +5,6 @@
 
 #include QMK_KEYBOARD_H
 
-#include "oneshot.h"
-
 enum layers {
     ALPHA_NORDRASSIL,
     // GER,    // german special characters
@@ -19,14 +17,8 @@ enum layers {
 };
 
 enum keycodes {
-    // Custom oneshot mod implementation with no timers.
-    OS_SHFT = SAFE_RANGE,
-    OS_CTRL,
-    OS_ALT,
-    OS_CMD,
-
-    SW_WINN, // Switch to next window         (alt-tab)
-    SW_WINP, // Switch to previous window     (alt-shift-tab)
+    SW_WINN = SAFE_RANGE, // Switch to next window      (alt-tab)
+    SW_WINP,              // Switch to previous window  (alt-shift-tab)
 };
 
 #define LA_SYM MO(SYM)
@@ -92,9 +84,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_H,    KC_I,    UL_E,    UL_A,    KC_DOT,                    KC_P,    KC_D,    KC_R,    UL_S,    KC_L,
         KC_Z,    KC_X,    KC_QUOT, KC_COMM, KC_SCLN,                   KC_B,    KC_C,    KC_M,    KC_F,    KC_V,
 #ifdef SWAP_LAYER_KEYS
-                                   LA_NAV,  QK_REP,  KC_SPC,  KC_T,    OS_SHFT, LA_SYM
+                                   LA_NAV,  QK_REP,  KC_SPC,  KC_T,    KC_LSFT, LA_SYM
 #else
-                                   QK_REP,  KC_SPC,  LA_NAV,  LA_SYM,  KC_T,    OS_SHFT
+                                   QK_REP,  KC_SPC,  LA_NAV,  LA_SYM,  KC_T,    KC_LSFT
 #endif
     ),
 
@@ -102,21 +94,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [SYM] = LAYOUT_split_3x5_3(
         KC_TILD, KC_LBRC, KC_LCBR, KC_LPRN, KC_UNDS,                   KC_PLUS, KC_RPRN, KC_RCBR, KC_RBRC, KC_GRV,
-        KC_HASH, KC_CIRC, KC_EQL,  KC_DLR,  KC_ASTR,                   KC_MINS, OS_CTRL, OS_ALT,  OS_CMD,  OS_SHFT,
         XXXXXXX, KC_PIPE, KC_AMPR, KC_SLSH, KC_BSLS,                   KC_PERC, KC_COLN, KC_AT,   KC_QUES, KC_EXLM,
+        KC_HASH, KC_CIRC, KC_EQL,  KC_DLR,  KC_ASTR,                   KC_MINS, KC_LCTL, KC_LALT, KC_LCMD, KC_LSFT,
                                    _______, _______, _______, _______, KC_ENT,  _______
     ),
 
     [NAV] = LAYOUT_split_3x5_3(
         SW_WINN, SW_WINP, CW_TOGG, KC_PSCR, KC_VOLU,                   XXXXXXX, KC_DEL,  KC_BSPC, XXXXXXX, XXXXXXX,
-        OS_SHFT, OS_CMD,  OS_ALT,  OS_CTRL, KC_VOLD,                   KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, KC_ENT,
+        KC_LSFT, KC_LCMD, KC_LALT, KC_LCTL, KC_VOLD,                   KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, KC_ENT,
         KC_CAPS, XXXXXXX, KC_TAB,  KC_ESC,  KC_MPLY,                   KC_HOME, KC_PGDN, KC_PGUP, KC_END,  XXXXXXX,
                                    _______, _______, _______, _______, _______, _______
     ),
 
     [NUM] = LAYOUT_split_3x5_3(
         KC_7,    KC_5,    KC_3,    KC_1,    KC_9,                      KC_8,    KC_0,    KC_2,    KC_4,    KC_6,
-        OS_SHFT, OS_CMD,  OS_ALT,  OS_CTRL, KC_F11,                    KC_F10,  OS_CTRL, OS_ALT,  OS_CMD,  OS_SHFT,
+        KC_LSFT, KC_LCMD, KC_LALT, KC_LCTL, KC_F11,                    KC_F10,  KC_LCTL, KC_LALT,KC_LCMD,  KC_LSFT,
         KC_F7,   KC_F5,   KC_F3,   KC_F1,   KC_F9,                     KC_F8,   KC_F12,  KC_F2,   KC_F4,   KC_F6,
                                    _______, _______, _______, _______, _______, _______
     ),
@@ -154,42 +146,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // clang-format on
 };
 
-
-bool is_oneshot_cancel_key(uint16_t keycode) {
-    switch (keycode) {
-    case LA_SYM:
-    case LA_NAV:
-        return true;
-    default:
-        return false;
-    }
-}
-
-bool is_oneshot_ignored_key(uint16_t keycode) {
-    switch (keycode) {
-    case LA_SYM:
-    case LA_NAV:
-    case KC_LSFT:
-    case OS_SHFT:
-    case OS_CTRL:
-    case OS_ALT:
-    case OS_CMD:
-        return true;
-    default:
-        return false;
-    }
-}
-
 layer_state_t layer_state_set_user(layer_state_t state) {
     return update_tri_layer_state(state, SYM, NAV, NUM);
 }
 
 static bool sw_win_active = false;
-
-static oneshot_state os_shft_state = os_up_unqueued;
-static oneshot_state os_ctrl_state = os_up_unqueued;
-static oneshot_state os_alt_state = os_up_unqueued;
-static oneshot_state os_cmd_state = os_up_unqueued;
 
 static bool tap_hold(keyrecord_t *record, uint16_t tap, uint16_t hold) {
     if (record->event.pressed) {
@@ -228,23 +189,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         unregister_code(cmd);
         *active = false;
     }
-
-    update_oneshot(
-        &os_shft_state, KC_LSFT, OS_SHFT,
-        keycode, record
-    );
-    update_oneshot(
-        &os_ctrl_state, KC_LCTL, OS_CTRL,
-        keycode, record
-    );
-    update_oneshot(
-        &os_alt_state, KC_LALT, OS_ALT,
-        keycode, record
-    );
-    update_oneshot(
-        &os_cmd_state, KC_LCMD, OS_CMD,
-        keycode, record
-    );
 
     switch (keycode) {
         case UL_A: return tap_hold(record, KC_A, ALGR_A);
