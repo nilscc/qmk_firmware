@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
+#include <sendstring_us_international.h>
 
 enum layers {
     ALPHA_NORDRASSIL,
@@ -31,6 +32,7 @@ enum keycodes {
 #define ALGR_O ALGR(KC_P)
 #define ALGR_S ALGR(KC_S)
 #define ALGR_E ALGR(KC_5) // euro sign
+#define KC_DEG UC(0x00B0) // degree sign
 
 // umlaut tap-hold defines: regular key on tap, umlaut variant on hold.
 // needs to be defined as one of the mod-tap keys, even though its behaviour is
