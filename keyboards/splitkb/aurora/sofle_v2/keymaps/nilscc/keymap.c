@@ -132,7 +132,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // See: https://github.com/empressabyss/nordrassil
     //
     [_NORDRASSIL] = LAYOUT(
-        KC_GRV,     KC_1,       KC_2,       KC_3,       KC_4,       KC_5,                               KC_6,       KC_7,       KC_8,       KC_9,       KC_0,       KC_SLSH,
+        KC_GRV,     KC_7,       KC_5,       KC_3,       KC_1,       KC_9,                               KC_8,       KC_0,       KC_2,       KC_4,       KC_6,       KC_SLSH,
         KC_TAB,     Q,          Y,          UL_O,       UL_U,       KC_MINS,                            J,          G,          N,          W,          K,          KC_BSPC,
         KC_ESC,     H,          I,          UL_E,       UL_A,       KC_DOT,                             P,          D,          R,          UL_S,       L,          KC_ENT,
         KC_LSFT,    Z,          X,          KC_QUOT,    KC_COMM,    KC_SCLN,    XXXXXXX,    XXXXXXX,    B,          C,          M,          F,          V,          KC_RSFT,
@@ -145,10 +145,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_NUMBERS] = LAYOUT(
         _______,    KC_F1,      KC_F2,      KC_F3,      KC_F4,      KC_F5,                              KC_F6,      KC_F7,      KC_F8,      KC_F9,      KC_F10,     KC_F11,
-        _______,    _______,    _______,    _______,    _______,    _______,                            KC_NUM,     KC_7,       KC_8,       KC_9,       KC_PSLS,    KC_F12,
-        _______,    KC_LGUI,    KC_LALT,    KC_LSFT,    KC_LCTL,    KC_PSCR,                            KC_PPLS,    KC_4,       KC_5,       KC_6,       KC_PDOT,    _______,
-        _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    KC_PMNS,    KC_1,       KC_2,       KC_3,       KC_PAST,    _______,
-                                _______,    _______,    _______,    _______,    _______,    KC_PENT,    KC_0,       _______,    _______,    _______
+        _______,    _______,    _______,    _______,    _______,    _______,                            KC_PSLS,    KC_7,       KC_8,       KC_9,       _______,    KC_F12,
+        _______,    KC_LGUI,    KC_LALT,    KC_LSFT,    KC_LCTL,    KC_PSCR,                            KC_PAST,    KC_4,       KC_5,       KC_6,       _______,    _______,
+        _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    KC_PMNS,    KC_1,       KC_2,       KC_3,       _______,    _______,
+                                _______,    _______,    _______,    _______,    _______,    KC_PENT,    KC_PPLS,    KC_0,       KC_PDOT,    _______
     ),
 
     [_FUNCTIONS] = LAYOUT(
@@ -264,8 +264,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 // shift only symbols on alpha layer of nordrassil layout
-bool get_custom_auto_shifted_key(uint16_t keycode, keyrecord_t *record) {
-    switch(keycode) {
+bool get_auto_shifted_key(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case KC_GRV:
+        case KC_1:
+        case KC_2:
+        case KC_3:
+        case KC_4:
+        case KC_5:
+        case KC_6:
+        case KC_7:
+        case KC_8:
+        case KC_9:
+        case KC_0:
+        case KC_SLSH:
         case KC_MINS:
         case KC_DOT:
         case KC_QUOT:
