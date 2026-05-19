@@ -6,7 +6,7 @@ enum layers {
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    [BASE] = LAYOUT( /* Base */
+    [BASE] = LAYOUT(
         KC_BTN1, KC_BTN3, KC_BTN2, MO(RAISE), XXXXXXX
     ),
 
@@ -17,19 +17,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 static bool scrolling_mode = false;
 
-static const int16_t DEFAULT_CPI = 900;
-
-
 layer_state_t layer_state_set_user(layer_state_t state) {
     switch (get_highest_layer(state)) {
         case RAISE:  // If we're on the RAISE layer enable scrolling mode
             scrolling_mode = true;
-            // pointing_device_set_cpi(40);
             break;
         default:
             if (scrolling_mode) {  // check if we were scrolling before and set disable if so
                 scrolling_mode = false;
-                // pointing_device_set_cpi(900);
             }
             break;
     }
@@ -57,7 +52,6 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
             mouse_report.v = acc_v / scale;
             acc_v %= scale;
         }
-
 
         // clear the X and Y values of the mouse report
         mouse_report.x = 0;
